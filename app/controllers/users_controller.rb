@@ -14,9 +14,36 @@ class UsersController < ApplicationController
     @user = User.new
   end
 
+  #ユーザー編集
+  def edit
+    @user = User.find_by(id: params[:id]) 
+  end
+
+  #ユーザー編集（上書き）
+  def update
+    if params[:image]
+    @user = User.find_by(id: params[:id])
+    @user.name = params[:name]
+    @user.email = params[:email]
+    @user.image_name = "#{@user.id}.jpeg"
+    image = params[:image]
+    File.binwrite("public/user_images/#{@user.image_name}",image.read)
+    end
+    if@user.save
+      redirect_to("/users/#{@user.id}")
+      flash[:notice] = "ユーザー情報を編集しました"
+    else
+      render("users/edit")
+    end
+  end
+
   #ユーザー登録データベース保存
   def create
-    @user = User.new(name: params[:name],email: params[:email])
+    @user = User.new(
+      name: params[:name],
+      email: params[:email],
+      image_name: "IMG_0521.jpg"
+      )
     if@user.save
       redirect_to("/users/#{@user.id}")
       flash[:notice] = "登録おめでとう！！"
@@ -24,4 +51,5 @@ class UsersController < ApplicationController
       render("users/new")
     end
   end
+
 end
